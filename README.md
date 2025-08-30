@@ -1,2 +1,2 @@
-                                     UAS-DTU Round 2 Software Task
+# UAS-DTU Round 2 Software Task
 
