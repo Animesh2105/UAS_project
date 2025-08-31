@@ -1,8 +1,9 @@
 import cv2 as cv
 import numpy as np
 
-img = cv.imread('E:/UAS/2.png')
+img = cv.imread('E:/UAS/8.png')
 grayimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+hsvimg = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 blurimg = cv.bilateralFilter(grayimg, 9, 75, 75)
 #Using Canny edge detection on a blurred and grayscale image
 edgeimg = cv.Canny(blurimg, 50, 150)
@@ -33,47 +34,49 @@ for contour in contours:
      #some help from the internet was used to find what a good epsilon value is supposed to be
      location = get_location(contour)
      perimeter = cv.arcLength(contour, True)
-     shape = cv.approxPolyDP(contour, 0.04*perimeter, True)
+     shape = cv.approxPolyDP(contour, 0.035*perimeter, True)
      edges = len(shape)
+     mask = np.zeros(grayimg.shape, dtype = 'uint8')
+     cv.drawContours(mask, [contour], -1, 255, -1)
+     H, S, V, alpha = cv.mean(hsvimg, mask = mask)    #we extract the hsv values for segmentation based on emergency level
      if edges == 3:
         age = 2   #elderly
      elif edges == 4:
         age =  1  #adult
-     elif edges != 8: #this is a bit of frankencode, cant get approxpolydp to always recognise stars without breaking everything else and circles come up as 8 edges so..
+     elif edges ==10: 
         age = 3   #children
      else:
-        continue
-     #now that we have differentiated the shape of the objects, we move to segmenting them by colour
-     mask = np.zeros(grayimg.shape, dtype = 'uint8')
-     cv.drawContours(mask, [contour], -1, 255, -1)
-     B, G, R, alpha = cv.mean(img, mask = mask)    #this returns the mean bgr values of that specific shape we mask
-     #now we use the bgr values to assign emergency levels to the victims, and designated capacities to the rescue pads
+      #here we segment and store the data for the rescue pads
+      if 90 <= H <= 130:       # blue
+            capacity = 4
+      elif 140 <= H <= 170:    # pink
+           capacity = 3
+      elif S < 40 and V > 180: # grey
+            capacity = 2
+      pads.append({
+          "pad id": pad_id,
+          "capacity": capacity,
+          "location": location
+      })
+      pad_id=pad_id+1
+      continue
+     #now we use the hsv values to assign emergency levels to the casualties, and designated capacities to the rescue pads
      if edges != 8:
-      if R > 120 and G > 120 and B < 120:
-         emergency = 2   #moderate
-      elif R > 150 and G < 120 and B < 120:
-         emergency = 3   # severe
-      elif G > 150 and R < 120 and B < 120:
-         emergency = 1   # safe
-      else:
-         emergency = 0   
-      casualties.append({
+         if 25<H<50 and S>140:
+            emergency = 2   #moderate
+         elif H<50 and S<85:
+            emergency = 3   #severe (this was a bit frustrating, since the color was very washed out)
+         elif 45<H<70 and S<140:
+            emergency = 1   #safe
+         else:
+            emergency = 0
+         casualties.append({
            "casualty id": casualty_id, 
            "age": age, 
            "emergency": emergency,
            "location": location
         })
-      casualty_id=casualty_id+1
-     elif edges == 8:   #since circles show up as 8 edges
-          if R > 180 and B > 180 and G < 150:
-            capacity = 3
-          elif B > 150 and R < 100 and G < 100:
-            capacity = 4
-          elif abs(R - G) < 20 and abs(G - B) < 20 and 80 < R < 200:
-            capacity = 2
-     print(edges)
-     cv.imshow('mask', mask)
-     cv.imshow('img', img)
-     cv.waitKey(0)
-print(casualties)
-      
+     casualty_id=casualty_id+1
+
+#All the data scanning, segmentation and storage is done
+
