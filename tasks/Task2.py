@@ -17,14 +17,18 @@ def get_location(contour):
     cy = int(M["m01"] / M["m00"])
     return (cx, cy)
 
+def distance(c1, c2):
+    return np.sqrt((c1[0]-c2[0])**2+(c1[1]-c2[1])**2)
+    
+
 
 #we use findContours to detect the external edges of the shapes in the image
 contours, hierarchies = cv.findContours(edgeimg, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
 casualty_id = 1
-casualties = []
+casualties = {}
 pad_id = 1
-pads = []
+pads = {}
 
 for contour in contours:
      area = cv.contourArea(contour)
@@ -53,12 +57,11 @@ for contour in contours:
            capacity = 3
       elif S < 40 and V > 180: # grey
             capacity = 2
-      pads.append({
-          "pad id": pad_id,
+      pads[pad_id]={
           "capacity": capacity,
           "location": location
-      })
-      pad_id=pad_id+1
+      }
+      pad_id+=1
       continue
      #now we use the hsv values to assign emergency levels to the casualties, and designated capacities to the rescue pads
      if edges != 8:
@@ -70,13 +73,26 @@ for contour in contours:
             emergency = 1   #safe
          else:
             emergency = 0
-         casualties.append({
-           "casualty id": casualty_id, 
-           "age": age, 
-           "emergency": emergency,
-           "location": location
-        })
-     casualty_id=casualty_id+1
+         casualties[casualty_id] = {
+        "age": age,
+        "emergency": emergency,
+        "location": location,
+        "priority score": age*emergency,
+         "distances" : {},
+         "scores" : {},
+         "best pad": {}
+       }
+     casualty_id+=1
 
 #All the data scanning, segmentation and storage is done
-
+for index in casualties:
+    p1 = (casualties[index]["location"])
+    for padindex in pads:
+        p2 = (pads[padindex]["location"])
+        dist = distance(p1, p2)
+        casualties[index]["distances"][padindex]=dist
+        score = casualties[index]["priority score"]*100-dist
+        casualties[index]["scores"][padindex]=score
+    
+#we now have both the priority score and the distance from each rescue pad stored along with the id of the casualty
+#we use the formula priority score*100 - distance to calculate the final score
