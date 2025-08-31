@@ -49,7 +49,7 @@ for contour in contours:
      B, G, R, alpha = cv.mean(img, mask = mask)    #this returns the mean bgr values of that specific shape we mask
      #now we use the bgr values to assign emergency levels to the victims, and designated capacities to the rescue pads
      if edges != 8:
-      if R > 120 and G > 120 and B < 120 and abs(R - G) < 60:
+      if R > 120 and G > 120 and B < 120:
          emergency = 2   #moderate
       elif R > 150 and G < 120 and B < 120:
          emergency = 3   # severe
