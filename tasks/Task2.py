@@ -96,3 +96,5 @@ for index in casualties:
     
 #we now have both the priority score and the distance from each rescue pad stored along with the id of the casualty
 #we use the formula priority score*100 - distance to calculate the final score
+
+#To do- assign casualties to pads while respecting maximum capacity
