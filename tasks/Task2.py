@@ -10,15 +10,6 @@ edgeimg = cv.Canny(blurimg, 50, 150)
 #we use findContours to detect the external edges of the shapes in the image
 contours, hierarchies = cv.findContours(edgeimg, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
-color_ranges = {
-    "yellow": (np.array([0, 200, 200]), np.array([80, 255, 255])),
-    "red":    (np.array([0, 0, 150]),   np.array([80, 80, 255])),
-    "green":  (np.array([0, 150, 0]),   np.array([80, 255, 80])),
-    "pink":   (np.array([180, 105, 180]), np.array([255, 180, 255])),
-    "blue":   (np.array([150, 0, 0]),   np.array([255, 80, 80])),
-    "grey":   (np.array([100, 100, 100]), np.array([200, 200, 200]))
-}
-
 for contour in contours:
      area = cv.contourArea(contour)
      if area < 20:
