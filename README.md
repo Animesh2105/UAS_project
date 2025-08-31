@@ -1,9 +1,9 @@
 # 🚁 UAS-DTU Round 2 Task – Search & Rescue
-📌 Overview
-This project uses computer vision (OpenCV + Python) to:
--Detect casualties in an input image (classified by age & emergency level).
--Detect rescue pads and their capacities.
--Assign casualties to the nearest available rescue pads based on distance and pad capacity.
+📌 Overview  
+This project uses computer vision (OpenCV + Python) to:  
+-Detect casualties in an input image (classified by age & emergency level).  
+-Detect rescue pads and their capacities.  
+-Assign casualties to the nearest available rescue pads based on distance and pad capacity.  
 
 ## Task 1
 The main goal of this task is to process the image and segment images into ocean and land (using masking in HSV colour spaces) and then overlay a unique colour to for clearer differentiation.
