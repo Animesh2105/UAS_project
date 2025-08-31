@@ -31,6 +31,7 @@ for contour in contours:
      mask = np.zeros(grayimg.shape, dtype = 'uint8')
      cv.drawContours(mask, [contour], -1, 255, -1)
      B, G, R, alpha = cv.mean(img, mask = mask)    #this returns the mean bgr values of that specific shape we mask
+     #now we use the bgr values to assign emergency levels to the victims, and designated capacities to the rescue pads
      if edges != 8:
         if R > 150 and G > 150 and B < 100:
             emergency = "moderate"
@@ -38,8 +39,21 @@ for contour in contours:
             emergency = "severe"
         elif G > 150 and R < 100 and B < 100:
             emergency = "safe"
-      elif edges == 8:
-         
+     elif edges == 8:   #since circles show up as 8 edges
+          if R > 180 and B > 180 and G < 150:
+            capacity = 3
+          elif B > 150 and R < 100 and G < 100:
+            capacity = 4
+          elif abs(R - G) < 20 and abs(G - B) < 20 and 80 < R < 200:
+            capacity = 2
+      
+
+
+        
+     
+
+
+
         
      
 
