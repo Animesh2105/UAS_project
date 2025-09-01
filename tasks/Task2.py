@@ -1,7 +1,9 @@
+#the code works as expected, however there are still some problems with image and colour detection which couldnt be tuned out due to time constraints
+#the program does not seem to work for 1.png, likely due it not being able to scan the rescue pad colors. it works for all other files.
 import cv2 as cv
 import numpy as np
 
-img = cv.imread('E:/UAS/8.png')
+img = cv.imread('enter filename here')
 grayimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 hsvimg = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 blurimg = cv.bilateralFilter(grayimg, 9, 75, 75)
@@ -19,6 +21,16 @@ def get_location(contour):
 
 def distance(c1, c2):
     return np.sqrt((c1[0]-c2[0])**2+(c1[1]-c2[1])**2)
+
+def getCasualtydata(n):
+    for padindex, details in pads.items():
+      if details["capacity"]==n:
+        i = 0
+        for id in details["assigned"]:
+            print(f"{casualties[id]["age"], casualties[id]["emergency"]}")
+            i+=1
+        print("Total casualties assigned: ", i)
+    print('\n')
     
 
 
@@ -89,10 +101,34 @@ for index in casualties:
     p1 = (casualties[index]["location"])
     for padindex in pads:
         p2 = (pads[padindex]["location"])
-        dist = distance(p1, p2)
+        dist = distance(p1, p2)     #get the location of both the casualty and pads to calculate the distance
         casualties[index]["distances"][padindex]=dist
         score = casualties[index]["priority score"]*100-dist
         casualties[index]["scores"][padindex]=score
+        pads[padindex]["assigned"]=[]
     
 #we now have both the priority score and the distance from each rescue pad stored along with the id of the casualty
 #we use the formula priority score*100 - distance to calculate the final score
+sorted_casualties = sorted(
+    casualties.items(),
+    key=lambda item: max(item[1]["scores"].values()),    #this sorts casualties in descending order of their scores
+    reverse=True
+)
+for index, details in sorted_casualties:
+    sorted_scores = sorted(details["scores"].items(), key=lambda x: x[1], reverse=True)   #this ranks the casualties best pad option in order
+    for padindex, score in sorted_scores:
+        if len(pads[padindex]["assigned"]) < pads[padindex]["capacity"]:
+            pads[padindex]["assigned"].append(index)    
+            details["best pad"] = padindex           
+            break
+
+#the casualties have now been assigned pads on the basis of emergency and distance
+#outputting the data in the required format
+print("Casualty details for blue pad (capacity = 4)")
+getCasualtydata(4)
+
+print("Casualty details for pink pad (capacity=3)")
+getCasualtydata(3)
+
+print("Casualty data for grey pad (capacity =2)")
+getCasualtydata(2)
