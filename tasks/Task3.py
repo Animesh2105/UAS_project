@@ -2,7 +2,7 @@
 import cv2 as cv
 import numpy as np
 
-img = cv.imread('E:/UAS/8.png')
+img = cv.imread('enter filename here')
 grayimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 hsvimg = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 blurimg = cv.bilateralFilter(grayimg, 9, 75, 75)
