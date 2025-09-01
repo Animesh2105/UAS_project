@@ -3,7 +3,7 @@
 import cv2 as cv
 import numpy as np
 
-img = cv.imread('enter filename here')
+img = cv.imread('E:/UAS/8.png')
 grayimg = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 hsvimg = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 blurimg = cv.bilateralFilter(grayimg, 9, 75, 75)
@@ -109,26 +109,3 @@ for index in casualties:
     
 #we now have both the priority score and the distance from each rescue pad stored along with the id of the casualty
 #we use the formula priority score*100 - distance to calculate the final score
-sorted_casualties = sorted(
-    casualties.items(),
-    key=lambda item: max(item[1]["scores"].values()),    #this sorts casualties in descending order of their scores
-    reverse=True
-)
-for index, details in sorted_casualties:
-    sorted_scores = sorted(details["scores"].items(), key=lambda x: x[1], reverse=True)   #this ranks the casualties best pad option in order
-    for padindex, score in sorted_scores:
-        if len(pads[padindex]["assigned"]) < pads[padindex]["capacity"]:
-            pads[padindex]["assigned"].append(index)    
-            details["best pad"] = padindex           
-            break
-
-#the casualties have now been assigned pads on the basis of emergency and distance
-#outputting the data in the required format
-print("Casualty details for blue pad (capacity = 4)")
-getCasualtydata(4)
-
-print("Casualty details for pink pad (capacity=3)")
-getCasualtydata(3)
-
-print("Casualty data for grey pad (capacity =2)")
-getCasualtydata(2)
